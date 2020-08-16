@@ -9,28 +9,28 @@ import java.io.IOException;
 
 public final class imageUtils
 {
-    public static ImageIcon imageChooser()
+    public static File imageChooser()
     {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(null);
-        ImageIcon image;
-        Image resizedImage;
         if (result == JFileChooser.APPROVE_OPTION)
         {
             File file = fileChooser.getSelectedFile();
-            try
-            {
-                image = new ImageIcon(ImageIO.read(file));
-                return image;
-
-            } catch (IOException ioException) {
-                //ioException.printStackTrace();
-            } catch (NullPointerException e)
-            {
-
-            }
+            return file;
         }
         return null;
+    }
+    public static BufferedImage rotateImage(BufferedImage image, double theta)
+    {
+        int w = image.getWidth();
+        int h = image.getHeight();
+
+        BufferedImage rotated = new BufferedImage(w,h,image.getType());
+        Graphics2D graphic = rotated.createGraphics();
+        graphic.rotate(theta,w/2,h/2);
+        graphic.drawImage(image, null,0,0);
+        graphic.dispose();
+        return rotated;
 
     }
 
