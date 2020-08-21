@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateAppMenuForm extends JFrame
@@ -17,6 +18,13 @@ public class UpdateAppMenuForm extends JFrame
     public AtomicBoolean loaded = new AtomicBoolean(false);
 
     private MainMenu m;
+
+    private boolean mainLogoUrl=true;
+    private boolean newsLogoUrl=true;
+    private boolean blogLogoUrl=true;
+    private boolean contactLogoUrl=true;
+    private boolean workLogoUrl=true;
+    private boolean updateLogoUrl=true;
 
     private String mainLogo;
     private String newsLogo;
@@ -31,21 +39,26 @@ public class UpdateAppMenuForm extends JFrame
     private JButton btnWork;
     private JButton btnUpdate;
 
-    protected JSONObject jsonObject;
+    private JLabel phoneTemplate;
+
+    protected JSONObject allJsonObject;
     private JSONObject mainJsonObject;
 
+    private String serverDirectory = "getArt/NealeHowells/profile/";
 
 
     public UpdateAppMenuForm(MainMenu m,JSONObject jsonObject)
     {
         this.m = m;
-        this.jsonObject = jsonObject;
-        this.mainJsonObject = (JSONObject)this.jsonObject.get("main_page");
+        this.allJsonObject = jsonObject;
+        this.mainJsonObject = (JSONObject)this.allJsonObject.get("main_page");
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(700,700);
         setResizable(false);
-
+        setTitle("Update Application Main Menu");
+        getContentPane().setBackground(new Color(135,122,253));
+        setLayout(null);
 
         //Set-Up Update Button
         btnUpdate = new JButton("UPDATE");
@@ -56,18 +69,20 @@ public class UpdateAppMenuForm extends JFrame
         btnUpdate.setFocusPainted(false);
         btnUpdate.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                /**
-                System.out.println(mainLogo);
-                System.out.println(newsLogo);
-                System.out.println(blogLogo);
-                System.out.println(contactLogo);
-                System.out.println(workLogo);
-                 */
-                System.out.println(mainJsonObject.toString());
+            public void actionPerformed(ActionEvent e)
+            {
+                String[] links = new String[]{mainLogo,contactLogo,blogLogo,workLogo,newsLogo};
+                boolean[] urls = new boolean[]{mainLogoUrl,contactLogoUrl,blogLogoUrl,workLogoUrl,newsLogoUrl};
+                String[] publicIds = new String[]{serverDirectory+"main",serverDirectory+"contact",
+                                    serverDirectory+"blog",serverDirectory+"work",serverDirectory+"news"};
+
+                UploadImages uploadImages = new UploadImages(links,publicIds,urls);
+                Thread uploadThread = new Thread(uploadImages);
+                uploadThread.start();
             }
         });
         add(btnUpdate);
+
 
 
         //Set up Work logo
@@ -84,10 +99,11 @@ public class UpdateAppMenuForm extends JFrame
                     image = new ImageIcon(ImageIO.read(file));
                     if (image != null)
                     {
-                        workLogo = file.getParent();
+                        workLogo = file.getAbsolutePath();
                         Image resizedImage = image.getImage().getScaledInstance(btnWork.getWidth(),btnWork.getHeight()
                                 , Image.SCALE_DEFAULT);
                         btnWork.setIcon(new ImageIcon(resizedImage));
+                        workLogoUrl = false;
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -111,10 +127,11 @@ public class UpdateAppMenuForm extends JFrame
                     image = new ImageIcon(ImageIO.read(file));
                     if (image != null)
                     {
-                        blogLogo = file.getParent();
+                        blogLogo = file.getAbsolutePath();
                         Image resizedImage = image.getImage().getScaledInstance(btnMainLogo.getWidth(),
                                 btnMainLogo.getHeight(),Image.SCALE_DEFAULT);
                         btnBlog.setIcon(new ImageIcon(resizedImage));
+                        blogLogoUrl = false;
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -137,10 +154,11 @@ public class UpdateAppMenuForm extends JFrame
                     image = new ImageIcon(ImageIO.read(file));
                     if (image != null)
                     {
-                        contactLogo = file.getParent();
+                        contactLogo = file.getAbsolutePath();
                         Image resizedImage = image.getImage().getScaledInstance(btnContact.getWidth(),
                                 btnContact.getHeight(),Image.SCALE_DEFAULT);
                         btnContact.setIcon(new ImageIcon(resizedImage));
+                        contactLogoUrl = false;
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -165,10 +183,11 @@ public class UpdateAppMenuForm extends JFrame
                     image = new ImageIcon(ImageIO.read(file));
                     if (image != null)
                     {
-                        newsLogo = file.getParent();
+                        newsLogo = file.getAbsolutePath();
                         Image resizedImage = image.getImage().getScaledInstance(btnNews.getWidth(),btnNews.getHeight()
                                 , Image.SCALE_DEFAULT);
                         btnNews.setIcon(new ImageIcon(resizedImage));
+                        newsLogoUrl = false;
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -176,15 +195,6 @@ public class UpdateAppMenuForm extends JFrame
             }
         });
         add(btnNews);
-
-
-        // Show template
-        JLabel phoneTemplate = new JLabel();
-        phoneTemplate.setBounds(10,10,380,640);
-        Image template = new ImageIcon("resources\\MainPageTemplate.png").
-                getImage().getScaledInstance(phoneTemplate.getWidth(),phoneTemplate.getHeight(), Image.SCALE_DEFAULT);
-        phoneTemplate.setIcon(new ImageIcon(template));
-        add(phoneTemplate);
 
 
         //Main Logo Button
@@ -201,10 +211,11 @@ public class UpdateAppMenuForm extends JFrame
                     image = new ImageIcon(ImageIO.read(file));
                     if (image != null)
                     {
-                        mainLogo = file.getParent();
+                        mainLogo = file.getAbsolutePath();
                         Image resizedImage = image.getImage().getScaledInstance(btnMainLogo.getWidth(),
                                 btnMainLogo.getHeight(),Image.SCALE_DEFAULT);
                         btnMainLogo.setIcon(new ImageIcon(resizedImage));
+                        mainLogoUrl = false;
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -213,15 +224,51 @@ public class UpdateAppMenuForm extends JFrame
         });
         add(btnMainLogo);
 
-        setTitle("Update Application Main Menu");
-        getContentPane().setBackground(new Color(135,122,253));
-        setLayout(null);
+        //Phone Background
+        JPanel temp = new JPanel();
+        temp.setBounds(10,10,380,640);
+        temp.setBackground(new Color(0,0,0));
+        add(temp);
 
         SetUpImages setUpImages = new SetUpImages();
         Thread setUpImagesThread = new Thread(setUpImages);
         setUpImagesThread.start();
+    }
 
+    class UploadImages implements Runnable
+    {
+        private String[] imagePaths;
+        private String[] publicIds;
+        private boolean[] urlPaths;
 
+        public UploadImages(String[] imagePaths, String[] publicIds, boolean[] urlPaths)
+        {
+            this.imagePaths = imagePaths;
+            this.publicIds = publicIds;
+            this.urlPaths = urlPaths;
+        }
+
+        @Override
+        public void run()
+        {
+            String[] links = new String[imagePaths.length];
+            System.out.println("Starting Upload");
+            for (int i=0;i<imagePaths.length;i++)
+            {
+                links[i] = ResourceServerHandler.StoreImage(urlPaths[i],imagePaths[i],publicIds[i]);
+                System.out.println(i);
+                //TODO if link[i]==null set up an error page
+            }
+            System.out.println(Arrays.toString(links));
+            //TODO Update JSON and Upload
+            try {
+                JSONObject json = JsonHandler.UpdateImageLinksMainMenuJson(mainJsonObject,links);
+                json = JsonHandler.UpdateAllJson("main_page",json, allJsonObject);
+                JsonHandler.updateJsonOnline(json);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     class SetUpImages implements Runnable
@@ -252,7 +299,7 @@ public class UpdateAppMenuForm extends JFrame
                 btnBlog.setIcon(new ImageIcon(sizedIcon));
 
                 icon = JsonHandler.getMainMenuImage(mainJsonObject, "work");
-                workLogo = JsonHandler.getMainMenuImageLink(mainJsonObject, "blog");
+                workLogo = JsonHandler.getMainMenuImageLink(mainJsonObject, "work");
                 sizedIcon = icon.getImage().getScaledInstance(btnWork.getWidth(),btnWork.getHeight(),Image.SCALE_DEFAULT);
                 btnWork.setIcon(new ImageIcon(sizedIcon));
 
