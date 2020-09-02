@@ -10,7 +10,8 @@ public class TestGui
     public static void main(String[] args)
     {
         new MainMenu();
-
+        //new UpdateContactForm();
+        //new AddContactForm(0);
     }
 
 

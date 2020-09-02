@@ -16,6 +16,7 @@ public class MainMenu extends JFrame
 {
     private JLabel loadingLabel;
     private JPanel background;
+    private JPanel buttonPanel;
 
     private MainMenu m;
 
@@ -29,9 +30,13 @@ public class MainMenu extends JFrame
         setResizable(false);
         setTitle("Profile Update Set-Up Main");
 
+        buttonPanel = new JPanel();
+        buttonPanel.setBounds(0,0,700,700);
+        buttonPanel.setBackground(new Color(135,122,253));
+        buttonPanel.setLayout(null);
 
         background = new JPanel();
-        background.setSize(700,700);
+        background.setBounds(0,0,700,700);
         background.setBackground(new Color(135,122,253));
 
         loadingLabel = new JLabel();
@@ -45,6 +50,44 @@ public class MainMenu extends JFrame
         title.setBounds(5,5,700,200);
         add(title);
 
+        JButton contactUpdateButton = new JButton("Update Contact Details");
+        contactUpdateButton.setFont(new Font("Serif", Font.BOLD, 18));
+        contactUpdateButton.setForeground(new Color(255,255,255));
+        contactUpdateButton.setBounds(195,410,300,50);
+        contactUpdateButton.setBackground(new Color(0,0,0));
+        contactUpdateButton.setFocusPainted(false);
+        contactUpdateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buttonPanel.setVisible(false);
+                GetJson getJson = new GetJson("Contact");
+                Thread jsonThread = new Thread(getJson);
+                jsonThread.start();
+            }
+        });
+
+        buttonPanel.add(contactUpdateButton);
+
+        //Work Update Button
+        JButton workUpdateButton = new JButton("Update Work Advertised");
+        workUpdateButton.setFont(new Font("Serif", Font.BOLD, 18));
+        workUpdateButton.setForeground(new Color(255,255,255));
+        workUpdateButton.setBounds(195,350,300,50);
+        workUpdateButton.setBackground(new Color(0,0,0));
+        workUpdateButton.setFocusPainted(false);
+        workUpdateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buttonPanel.setVisible(false);
+
+                GetJson getJson = new GetJson("Work");
+                Thread jsonThread = new Thread(getJson);
+                jsonThread.start();
+            }
+        });
+
+        buttonPanel.add(workUpdateButton);
+
         //MainMenuFormButton
         JButton mainMenuUpdateButton = new JButton("Profile Main Menu");
         mainMenuUpdateButton.setFont(new Font("Serif", Font.BOLD,18));
@@ -57,7 +100,7 @@ public class MainMenu extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                mainMenuUpdateButton.setVisible(false);
+                buttonPanel.setVisible(false);
 
                 GetJson getJson = new GetJson("MainMenu");
                 Thread jsonThread = new Thread(getJson);
@@ -69,9 +112,9 @@ public class MainMenu extends JFrame
             }
         });
 
-        add(mainMenuUpdateButton);
+        buttonPanel.add(mainMenuUpdateButton);
 
-
+        add(buttonPanel);
         add(loadingLabel);
         add(background);
         setLayout(null);
@@ -103,6 +146,13 @@ public class MainMenu extends JFrame
                 case "MainMenu":
                     new UpdateAppMenuForm(m, data);
                     break;
+
+                case "Work":
+                    new WorkUpdateForm(m,null,data);
+                    break;
+
+                case "Contact":
+                    new UpdateContactForm(m,null,data);
             }
 
 

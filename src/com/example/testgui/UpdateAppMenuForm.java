@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateAppMenuForm extends JFrame
 {
-    public AtomicBoolean loaded = new AtomicBoolean(false);
+    //public AtomicBoolean loaded = new AtomicBoolean(false);
 
     private MainMenu m;
 
@@ -39,8 +39,6 @@ public class UpdateAppMenuForm extends JFrame
     private JButton btnWork;
     private JButton btnUpdate;
 
-    private JLabel phoneTemplate;
-
     protected JSONObject allJsonObject;
     private JSONObject mainJsonObject;
 
@@ -56,7 +54,7 @@ public class UpdateAppMenuForm extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(700,700);
         setResizable(false);
-        setTitle("Update Application Main Menu");
+        setTitle("Update Main Menu");
         getContentPane().setBackground(new Color(135,122,253));
         setLayout(null);
 
@@ -260,7 +258,6 @@ public class UpdateAppMenuForm extends JFrame
                 //TODO if link[i]==null set up an error page
             }
             System.out.println(Arrays.toString(links));
-            //TODO Update JSON and Upload
             try {
                 JSONObject json = JsonHandler.UpdateImageLinksMainMenuJson(mainJsonObject,links);
                 json = JsonHandler.UpdateAllJson("main_page",json, allJsonObject);
@@ -306,7 +303,7 @@ public class UpdateAppMenuForm extends JFrame
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            loaded.set(true);
+            //loaded.set(true);
             setVisible(true);
             m.loadingGUI.stop();
             m.setVisible(false);

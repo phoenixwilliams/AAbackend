@@ -9,6 +9,37 @@ import java.io.IOException;
 
 public final class imageUtils
 {
+    public static ImageIcon proportionalResizeImage(BufferedImage bufferedImage, int maxHeight, int maxWidth) {
+        int aimHeight,aimWidth;
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+
+        if (width <= maxWidth && height <= maxHeight)
+        {
+            return new ImageIcon(bufferedImage);
+        }
+
+        float multiplier = ((float)height / width);
+
+        if (height>width)
+        {
+            aimHeight = maxHeight;
+            aimWidth = Math.round(aimHeight / multiplier);
+        }
+        else
+        {
+            aimWidth = maxWidth;
+            aimHeight = Math.round(aimWidth * multiplier);
+        }
+
+        BufferedImage resizedImage = new BufferedImage(aimWidth,aimHeight,BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        graphics2D.drawImage(bufferedImage, 0,0,aimWidth,aimHeight,null);
+        graphics2D.dispose();
+
+        return new ImageIcon(resizedImage);
+    }
+
     public static File imageChooser()
     {
         JFileChooser fileChooser = new JFileChooser();

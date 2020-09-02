@@ -1,6 +1,6 @@
 package com.example.testgui;
 
-import netscape.javascript.JSObject;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -20,6 +20,194 @@ import java.util.Scanner;
 
 public final class JsonHandler
 {
+    public static JSONObject updateContact(JSONObject allJsonObject, int id, String contact, String detail)
+    {
+        JSONArray contactArray = (JSONArray) allJsonObject.get("contact");
+        JSONObject currentContact = (JSONObject) contactArray.get(id);
+        currentContact.put("contact",contact);
+        currentContact.put("detail",detail);
+        contactArray.set(id,currentContact);
+        allJsonObject.put("contact",contactArray);
+
+        return allJsonObject;
+    }
+    public static JSONObject deleteContact(JSONObject allJsonObject, int id)
+    {
+        JSONArray contact = (JSONArray) allJsonObject.get("contact");
+        contact.remove(id);
+        allJsonObject.put("contact", contact);
+        return allJsonObject;
+    }
+
+    public static JSONObject addContact(JSONObject allJsonObject, String contact, String contactDetail)
+    {
+        JSONArray jsonArray = (JSONArray) allJsonObject.get("contact");
+        JSONObject newContact = new JSONObject();
+        newContact.put("contact", contact);
+        newContact.put("detail",contactDetail);
+        jsonArray.add(newContact);
+
+        allJsonObject.put("contact",jsonArray);
+        return allJsonObject;
+    }
+
+    public static String[] getAllContactDetails(JSONArray contactJsonArray)
+    {
+        String[] contactDetails = new String[contactJsonArray.toArray().length];
+
+        for(int i=0;i<contactDetails.length;i++)
+        {
+            JSONObject jsonObject = (JSONObject) contactJsonArray.get(i);
+            contactDetails[i] = (String) jsonObject.get("detail");
+        }
+        return contactDetails;
+    }
+
+    public static String[] getAllContacts(JSONArray contactJsonArray)
+    {
+        String[] contacts = new String[contactJsonArray.toArray().length];
+
+        for (int i=0;i<contacts.length;i++)
+        {
+            JSONObject jsonObject = (JSONObject) contactJsonArray.get(i);
+            contacts[i] = (String) jsonObject.get("contact");
+        }
+        return contacts;
+    }
+
+    public static JSONObject deleteWorkItem(JSONObject allJsonObject, int index)
+    {
+        JSONArray workPageArray = (JSONArray) allJsonObject.get("work_page");
+        JSONArray workJsonArrayNew = new JSONArray();
+
+        for (int i=0;i<workPageArray.toArray().length;i++)
+        {
+            if (i!=index)
+            {
+                workJsonArrayNew.add(workPageArray.get(i));
+            }
+        }
+        allJsonObject.put("work_page", workJsonArrayNew);
+        return allJsonObject;
+    }
+
+    public static JSONObject updateWorkJsonArray(JSONObject allJsonObject, int index, String imageLink,
+                                                 String workDescription, String price)
+    {
+        //Check Price
+        char[] priceChar = price.toCharArray();
+        boolean moneyInPrice = false;
+        JSONArray workPageArray = (JSONArray) allJsonObject.get("work_page");
+        JSONArray workJsonArrayNew = new JSONArray();
+
+        if (priceChar[0]!='£')
+        {
+            price = "£"+price;
+        }
+
+        for (int i=0;i<workPageArray.toArray().length;i++)
+        {
+            if (i==index)
+            {
+                JSONObject newWorkJson = new JSONObject();
+                newWorkJson.put("src",imageLink);
+                newWorkJson.put("price_text",price);
+                newWorkJson.put("text",workDescription);
+                workJsonArrayNew.add(newWorkJson);
+            }
+            else
+            {
+                workJsonArrayNew.add(workPageArray.get(i));
+            }
+        }
+
+        allJsonObject.put("work_page",workJsonArrayNew);
+        return allJsonObject;
+    }
+
+    public static JSONObject addElementWorkJsonArray(JSONObject allJsonObject, String imageLink, String workDescription,
+                                              String price)
+    {
+        //Check Price
+        char[] priceChar = price.toCharArray();
+        boolean moneyInPrice = false;
+
+        if (priceChar[0]!='£')
+        {
+            price = "£"+price;
+        }
+
+        JSONArray workJsonArray = (JSONArray) allJsonObject.get("work_page");
+        JSONObject newWorkJson = new JSONObject();
+        newWorkJson.put("src",imageLink);
+        newWorkJson.put("price_text",price);
+        newWorkJson.put("text",workDescription);
+        workJsonArray.add(newWorkJson);
+        allJsonObject.put("work_page",workJsonArray);
+
+        return allJsonObject;
+
+
+    }
+
+    public static String[] getWorkPrices(JSONArray jsonArray)
+    {
+        String[] workPrices = new String[jsonArray.toArray().length];
+        JSONObject currentWork;
+        for (int i=0;i< workPrices.length;i++)
+        {
+            currentWork = (JSONObject)jsonArray.get(i);
+            workPrices[i] = (String) currentWork.get("price_text");
+        }
+        return workPrices;
+    }
+
+    public static String[] getWorkDescriptions(JSONArray jsonArray)
+    {
+        String[] workDescriptions = new String[jsonArray.toArray().length];
+        JSONObject currentWork;
+
+        for (int i=0;i< workDescriptions.length;i++)
+        {
+            currentWork = (JSONObject) jsonArray.get(i);
+            workDescriptions[i] = (String) currentWork.get("text");
+        }
+        return workDescriptions;
+    }
+
+    public static String[] getWorkImagesLinks(JSONArray jsonArray) throws IOException
+    {
+        String[] works = new String[jsonArray.toArray().length];
+        String link;
+        JSONObject currentWork;
+
+        for (int i=0;i< works.length;i++)
+        {
+            currentWork = (JSONObject) jsonArray.get(i);
+            link = (String) currentWork.get("src");
+            works[i] = link;
+        }
+        return works;
+    }
+
+    public static BufferedImage[] getWorkImages(JSONArray jsonArray) throws IOException
+    {
+        BufferedImage[] works = new BufferedImage[jsonArray.toArray().length];
+        String link;
+        JSONObject currentWork;
+        BufferedImage bufferedImage;
+
+        for (int i=0;i< works.length;i++)
+        {
+            currentWork = (JSONObject) jsonArray.get(i);
+            link = (String) currentWork.get("src");
+            URL url = new URL(link);
+            bufferedImage = ImageIO.read(url);
+            works[i] = bufferedImage;
+        }
+        return works;
+    }
+
     public static void updateJsonOnline(JSONObject jsonObject) throws IOException {
 
         String urlAddress = "https://api.jsonbin.io/b/5f22f458250d377b5dc700da";

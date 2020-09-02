@@ -136,8 +136,6 @@ public final class ResourceServerHandler
 
     public static String StoreUrlImage(String imagePath, String public_id)
     {
-
-
         try {
             Date now = new Date();
             Long longTime = now.getTime() / 1000;
